@@ -46,10 +46,10 @@ class HttpHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
 
-def run_http(stop, server_class=HTTPServer, handler_class=HttpHandler):
+def run_http(stop_ev, server_class=HTTPServer, handler_class=HttpHandler):
     server_address = (IP, EXTERNAL_PORT)
     http = server_class(server_address, handler_class)
-    while not stop.is_set():
+    while not stop_ev.is_set():
         http.serve_forever()
     print('   Closing server...')
     http.server_close()
@@ -63,11 +63,11 @@ def socket_client(message, ip=IP, port=UDP_PORT):
     # print(f'Send data: {data} to server: {server}')
     sock.close()
 
-def socket_server(stop, ip=IP, port=UDP_PORT):
+def socket_server(stop_ev, ip=IP, port=UDP_PORT):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server = ip, port
     sock.bind(server)
-    while not stop.is_set():
+    while not stop_ev.is_set():
         data, _ = sock.recvfrom(1024)
         # print(f'Received data: {data} from: {address}')
         message = json.loads(data.decode('utf-8'))
